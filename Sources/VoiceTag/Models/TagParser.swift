@@ -66,8 +66,8 @@ final class TagParser {
     }
 
     /// Build a nested folder URL from a spoken phrase.
-    /// "kuari pass day 2" → baseDir/Kuari_Pass/Day_2
-    /// "kuari pass" → baseDir/Kuari_Pass
+    /// "mountains pass day 2" → baseDir/Mountains/Day_2
+    /// "mountains pass" → baseDir/Mountains
     private func buildFolderPath(from text: String, currentFolder: URL?, config: AppConfig) -> URL {
         // Split on common natural-language separators
         var parts = tokenize(text)

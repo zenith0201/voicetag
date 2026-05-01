@@ -82,7 +82,7 @@ final class WhisperService: NSObject, ObservableObject {
                 "-f", audioURL.path,
                 "-l", "en",
                 "-t", "4",
-                "--prompt", "Hampi, Kuari Pass, Puri, Day 1, Day 2, Day 3, landscape, family, delete, skip, undo"
+                "--prompt", "Beach, Mountains, City Trip, Day 1, Day 2, Day 3, landscape, family, delete, skip, undo"
             ]
             let pipe = Pipe()
             process.standardOutput = pipe

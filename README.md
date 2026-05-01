@@ -25,9 +25,9 @@ Ever come back from a trip with 500 photos and dreaded sorting them? VoiceTag le
 📂 Open folder with 500 photos from your trek
 
 → Browse with arrow keys
-→ Hold SPACE → say "Kuari Pass Day 2"
+→ Hold SPACE → say "Beach Day 2"
 → Release SPACE
-→ Photo instantly moves to ~/Pictures/VoiceTagged/Kuari_Pass/Day_2/
+→ Photo instantly moves to ~/Pictures/VoiceTagged/Beach/Day_2/
 → Next photo loads automatically
 
 Repeat at full speed. Sort 200 photos in 15 minutes.
@@ -35,15 +35,21 @@ Repeat at full speed. Sort 200 photos in 15 minutes.
 
 ---
 
-## What's New in v1.1
+## What's New
 
-- 🇮🇳 **Sarvam AI support** — best-in-class recognition for Indian languages, accents, and place names (Hampi, Kuari Pass, Puri etc.)
-- 🔁 **Three STT backends** — choose between local whisper.cpp, OpenAI API, or Sarvam AI
-- 📂 **Recursive folder loading** — opens all images across all subfolders, not just top level
-- ↩️ **Smart undo on ← arrow** — press left immediately after tagging to undo and re-tag
-- ⚡ **Shift+Space** — repeat last tag instantly without speaking
-- 🏷 **Recent tags sidebar** — tap any previously used tag to apply instantly
-- 🎙 **Auto mic detection** — automatically finds your MacBook microphone
+### v1.2
+- ✏️ **Tag editor with pencil button** — after transcription, tap ✏️ to fix the tag before applying. All keys (SPACE, arrows) work inside the editor, not as hotkeys
+- 📁 **Output folder picker** — change where sorted photos go, right from the sidebar. Persists across sessions
+- 🎛 **Model switcher in sidebar** — switch between Sarvam AI, local whisper.cpp, and OpenAI with one tap. No config editing needed
+
+### v1.1
+- 🇮🇳 **Sarvam AI** — best-in-class recognition for Indian languages, accents, and place names
+- 🔁 **Three STT backends** — Sarvam AI, OpenAI Whisper, local whisper.cpp
+- 📂 **Recursive folder loading** — scans all subfolders automatically
+- ↩️ **Smart ← undo** — press left arrow right after tagging to undo and re-tag
+- ⚡ **Shift+Space** — repeat last tag instantly
+- 🏷 **Recent tags sidebar** — one-click to re-apply any previous tag
+- 🎙 **Auto mic detection** — finds your MacBook microphone automatically
 
 ---
 
@@ -52,13 +58,15 @@ Repeat at full speed. Sort 200 photos in 15 minutes.
 | Feature | Details |
 |---|---|
 | 🎙 Voice tagging | Hold SPACE, speak, release — done |
-| ⚡ Instant | ~200ms transcription on Apple Silicon |
+| ✏️ Tag editor | Tap pencil to fix wrong transcription before applying |
 | 🇮🇳 Indian language support | Sarvam AI handles accents, place names, Hinglish |
+| 🎛 Model switcher | Switch STT backend from the sidebar |
+| 📁 Output folder | Choose where photos go, change anytime |
 | 🔁 Shift+Space | Repeat last tag without speaking |
 | ↩️ Smart undo | Press ← right after tagging to undo and re-tag |
-| 🏷 Recent tags | Sidebar buttons for quick one-click tagging |
-| 📂 Recursive scan | Loads images from all subfolders automatically |
-| 📴 Offline option | whisper.cpp works with no internet after setup |
+| 🏷 Recent tags | Sidebar buttons for one-click tagging |
+| 📂 Recursive scan | Loads images from all subfolders |
+| 📴 Offline option | whisper.cpp works with no internet |
 | 🗂 EXIF aware | Shows date taken, camera, GPS in sidebar |
 | 📝 Full log | Every action logged to `~/.voicetag/voicetag.log` |
 
@@ -83,7 +91,7 @@ xcode-select --install
 ### Step 2 — Clone and setup
 
 ```bash
-git clone https://github.com/zenith0201/voicetag.git
+git clone https://github.com/YOUR_USERNAME/voicetag.git
 cd voicetag
 chmod +x setup.sh
 ./setup.sh
@@ -107,15 +115,15 @@ When the app opens, grant:
 
 ## Voice Recognition Backends
 
-VoiceTag supports three backends. Set `whisperMode` in `~/.voicetag/config.json`.
+Switch models anytime from the **Voice Model** section in the sidebar.
 
 ### 🇮🇳 Sarvam AI (Recommended for Indian users)
 
-[Sarvam AI](https://sarvam.ai) is an Indian AI company with state-of-the-art speech recognition for 22 Indian languages. It handles Indian accents, place names, and code-mixed speech far better than generic models.
+[Sarvam AI](https://sarvam.ai) is an Indian AI company with state-of-the-art speech recognition for 22 Indian languages. It handles Indian accents, place names, and code-mixed speech natively.
 
 **Setup:**
 1. Get a free API key at [dashboard.sarvam.ai](https://dashboard.sarvam.ai) — starts free with ₹1,000 credits
-2. Add to your config:
+2. Add to `~/.voicetag/config.json`:
 
 ```json
 {
@@ -127,81 +135,82 @@ VoiceTag supports three backends. Set `whisperMode` in `~/.voicetag/config.json`
 
 **Supported languages:** `en-IN`, `hi-IN`, `kn-IN`, `ta-IN`, `te-IN`, `ml-IN`, `mr-IN`, `bn-IN`, `gu-IN`, `pa-IN` and more.
 
-**Pricing:** ₹30/hour of audio — sorting 500 photos uses roughly 10 minutes of audio = ~₹5.
+**Pricing:** ₹30/hour of audio — sorting 500 photos ≈ ₹5.
 
 ---
 
-### 🤖 OpenAI Whisper API
+### 💻 Local whisper.cpp (Offline, no API key)
+
+Runs fully offline using Apple Silicon GPU. Set in config or tap in sidebar:
 
 ```json
-{
-  "whisperMode": "api",
-  "whisperAPIKey": "sk-your-openai-key"
-}
+{ "whisperMode": "local", "whisperModel": "base.en" }
 ```
+
+Available models (download with `setup.sh --model <name>`):
+
+| Model | Size | Accuracy |
+|---|---|---|
+| `tiny.en` | 75MB | Basic |
+| `base.en` | 150MB | Good |
+| `small.en` | 500MB | Better |
+| `medium.en` | 1.5GB | Best offline |
 
 ---
 
-### 💻 Local whisper.cpp (Offline)
-
-No API key needed. Runs fully offline using Apple Silicon GPU.
+### ☁️ OpenAI Whisper API
 
 ```json
-{
-  "whisperMode": "local",
-  "whisperModel": "base.en"
-}
+{ "whisperMode": "api", "whisperAPIKey": "sk-your-key" }
 ```
-
-Available models (run `setup.sh --model <name>` to download):
-
-| Model | Size | Speed | Accuracy |
-|---|---|---|---|
-| `tiny.en` | 75MB | Fastest | Basic |
-| `base.en` | 150MB | Fast | Good |
-| `small.en` | 500MB | Medium | Better |
-| `medium.en` | 1.5GB | Slower | Best offline |
 
 ---
 
 ## How to Use
 
+### Basic Workflow
+
+1. Open a folder (⌘O or drag-drop)
+2. Browse with ← → arrow keys
+3. Hold **SPACE**, speak the tag, release
+4. Photo moves instantly — next photo loads
+5. If the tag was wrong, tap **✏️** in the sidebar to edit and press Enter
+
 ### Keyboard Shortcuts
 
 | Key | Action |
 |---|---|
-| `← →` | Navigate between images |
-| Hold `SPACE` | Start recording voice tag |
+| `← →` | Navigate images (disabled in edit mode) |
+| Hold `SPACE` | Record voice tag (disabled in edit mode) |
 | Release `SPACE` | Stop recording and apply tag |
 | `Shift + SPACE` | Repeat last tag instantly |
-| `←` right after tagging | Undo last tag, re-tag the image |
+| `←` right after tagging | Undo last tag, re-tag |
 | `⌘O` | Open a folder |
 | `⌘Z` | Undo last action |
+| `Enter` | Apply edited tag (in edit mode) |
+| `Esc` | Dismiss tag editor |
 
 ### Voice Commands
 
 | Say | What happens |
 |---|---|
-| `"Kuari Pass Day 2"` | Moves to `Kuari_Pass/Day_2/` |
-| `"Hampi"` | Moves to `Hampi/` |
+| `"Beach Day 2"` | Moves to `Beach/Day_2/` |
+| `"Beach"` | Moves to `Beach/` |
 | `"family"` | Moves to `Family/` |
 | `"skip"` / `"next"` | Skip, no action |
 | `"delete"` / `"trash"` | Move to `Trash_Sorted/` |
 | `"undo"` | Undo last move |
 
-### Output Folder Structure
+### Sidebar Controls
 
-```
-~/Pictures/VoiceTagged/
-├── Kuari_Pass/
-│   ├── Day_1/
-│   └── Day_2/
-├── Hampi/
-├── Family/
-├── Landscapes/
-├── Trash_Sorted/
-└── Unsorted/
-```
+| Section | What it does |
+|---|---|
+| **Status** | Current state + last heard tag with ✏️ edit button |
+| **Voice Model** | Switch between Sarvam / Local / OpenAI |
+| **Output Folder** | Change where sorted photos are saved |
+| **Recent Tags** | Tap any tag to apply it instantly |
+| **Current Image** | EXIF metadata (date, camera, GPS) |
+| **History** | Last 8 actions with undo button |
 
 ---
 
@@ -222,10 +231,10 @@ Edit `~/.voicetag/config.json`:
   "undoCommands": ["undo", "go back"],
   "trashFolderName": "Trash_Sorted",
   "tagMappings": {
-    "hampi": "Hampi",
-    "humpy": "Hampi",
-    "kuari": "Kuari_Pass",
-    "quari": "Kuari_Pass",
+    "beach": "Beach",
+    "beech": "Beach",
+    "beach": "Beach",
+    "mountains": "Mountains",
     "family": "Family"
   },
   "debugMode": false,
@@ -233,16 +242,20 @@ Edit `~/.voicetag/config.json`:
 }
 ```
 
-### Tag Mappings
+---
 
-Use `tagMappings` to handle common misrecognitions. The key is what whisper/Sarvam might hear, the value is the correct folder name:
+## Output Folder Structure
 
-```json
-"tagMappings": {
-  "humpy": "Hampi",
-  "quari": "Kuari_Pass",
-  "goa": "Goa"
-}
+```
+~/Pictures/VoiceTagged/     ← configurable from sidebar
+├── Beach/
+│   ├── Day_1/
+│   └── Day_2/
+├── Beach/
+├── Family/
+├── Landscapes/
+├── Trash_Sorted/
+└── Unsorted/
 ```
 
 ---
@@ -250,22 +263,22 @@ Use `tagMappings` to handle common misrecognitions. The key is what whisper/Sarv
 ## Troubleshooting
 
 **Space bar not working?**
-Click on the app window first to give it focus.
+Click on the app window first. If the tag editor is open, close it first (Esc).
 
 **Always hears "You" or silence?**
-Your mic input might be wrong. Check System Settings → Sound → Input. Also run:
+Run to check mic index:
 ```bash
 /opt/homebrew/bin/ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | grep -i micro
 ```
 
 **App won't open?**
-Right-click `VoiceTag.app` → Open → Open (bypasses Gatekeeper for unsigned apps).
+Right-click `VoiceTag.app` → Open → Open (bypasses Gatekeeper).
 
-**Sarvam API error?**
-Check your key at [dashboard.sarvam.ai](https://dashboard.sarvam.ai) and make sure `whisperMode` is set to `"sarvam"` in config.
+**Sarvam API not working?**
+Check your key at [dashboard.sarvam.ai](https://dashboard.sarvam.ai). Tap the model selector in sidebar and reselect Sarvam to re-apply.
 
 **Whisper not found?**
-Re-run `./setup.sh` — it detects and installs what's missing.
+Re-run `./setup.sh` to reinstall.
 
 ---
 
@@ -284,7 +297,7 @@ Re-run `./setup.sh` — it detects and installs what's missing.
 
 ## Credits
 
-**Idea & Product** — [Swaroop B Deshpande](https://github.com/zenith0201)
+**Idea & Product** — [Your Name](https://github.com/YOUR_USERNAME)
 
 **Built with** — [Claude](https://claude.ai) by Anthropic
 
