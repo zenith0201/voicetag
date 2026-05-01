@@ -211,7 +211,7 @@ Re-run `./setup.sh` — it will detect what's missing and install it.
 
 ## Credits
 
-**Idea & Product** — [Swaroop B Deshpande](https://github.com/YOUR_USERNAME)
+**Idea & Product** — [Swaroop B Deshpande](https://github.com/zenith0201)
 
 **Built with** — [Claude](https://claude.ai) by Anthropic
 
