@@ -9,6 +9,8 @@
   [![Swift](https://img.shields.io/badge/Swift-5.9-orange)](https://swift.org)
   [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
   [![Built with Claude](https://img.shields.io/badge/Built%20with-Claude%20AI-blueviolet)](https://claude.ai)
+  [![Sarvam AI](https://img.shields.io/badge/Powered%20by-Sarvam%20AI-ff6b35)](https://sarvam.ai)
+  [![whisper.cpp](https://img.shields.io/badge/Offline-whisper.cpp-lightgrey)](https://github.com/ggerganov/whisper.cpp)
 </div>
 
 ---
@@ -25,7 +27,7 @@ Ever come back from a trip with 500 photos and dreaded sorting them? VoiceTag le
 → Browse with arrow keys
 → Hold SPACE → say "Kuari Pass Day 2"
 → Release SPACE
-→ Photo instantly moves to ~/Pictures/VoiceTagged/kuari_pass/day_2/
+→ Photo instantly moves to ~/Pictures/VoiceTagged/Kuari_Pass/Day_2/
 → Next photo loads automatically
 
 Repeat at full speed. Sort 200 photos in 15 minutes.
@@ -33,82 +35,132 @@ Repeat at full speed. Sort 200 photos in 15 minutes.
 
 ---
 
+## What's New in v1.1
+
+- 🇮🇳 **Sarvam AI support** — best-in-class recognition for Indian languages, accents, and place names (Hampi, Kuari Pass, Puri etc.)
+- 🔁 **Three STT backends** — choose between local whisper.cpp, OpenAI API, or Sarvam AI
+- 📂 **Recursive folder loading** — opens all images across all subfolders, not just top level
+- ↩️ **Smart undo on ← arrow** — press left immediately after tagging to undo and re-tag
+- ⚡ **Shift+Space** — repeat last tag instantly without speaking
+- 🏷 **Recent tags sidebar** — tap any previously used tag to apply instantly
+- 🎙 **Auto mic detection** — automatically finds your MacBook microphone
+
+---
+
 ## Features
 
-- 🎙 **Voice tagging** — hold SPACE, speak, release. Done.
-- ⚡ **Instant** — whisper.cpp with Metal GPU, transcription in ~200ms on Apple Silicon
-- 🔁 **Shift+Space** — repeat last tag without speaking again
-- ↩️ **Smart undo** — press ← right after a tag to undo it and re-tag
-- 🏷 **Recent tags** — one-click sidebar buttons for your most-used tags
-- 📂 **Auto folders** — "kuari pass day 2" creates nested `Kuari_Pass/Day_2/` automatically
-- 📴 **Offline** — works completely without internet after setup
-- 🗂 **EXIF aware** — shows date taken, camera model, GPS in sidebar
-- 📝 **Full log** — every action logged to `~/.voicetag/voicetag.log`
+| Feature | Details |
+|---|---|
+| 🎙 Voice tagging | Hold SPACE, speak, release — done |
+| ⚡ Instant | ~200ms transcription on Apple Silicon |
+| 🇮🇳 Indian language support | Sarvam AI handles accents, place names, Hinglish |
+| 🔁 Shift+Space | Repeat last tag without speaking |
+| ↩️ Smart undo | Press ← right after tagging to undo and re-tag |
+| 🏷 Recent tags | Sidebar buttons for quick one-click tagging |
+| 📂 Recursive scan | Loads images from all subfolders automatically |
+| 📴 Offline option | whisper.cpp works with no internet after setup |
+| 🗂 EXIF aware | Shows date taken, camera, GPS in sidebar |
+| 📝 Full log | Every action logged to `~/.voicetag/voicetag.log` |
 
 ---
 
 ## Installation
 
 ### Requirements
+
 - macOS 14 (Sonoma) or later
-- Apple Silicon or Intel Mac
-- [Homebrew](https://brew.sh) (for ffmpeg)
+- Apple Silicon (M1/M2/M3) or Intel Mac
+- [Homebrew](https://brew.sh)
 - Xcode Command Line Tools: `xcode-select --install`
 
-### Step 1 — Install ffmpeg
+### Step 1 — Install dependencies
+
 ```bash
 brew install ffmpeg
+xcode-select --install
 ```
 
-### Step 2 — Clone and run setup
+### Step 2 — Clone and setup
+
 ```bash
-git clone https://github.com/YOUR_USERNAME/voicetag.git
+git clone https://github.com/zenith0201/voicetag.git
 cd voicetag
 chmod +x setup.sh
 ./setup.sh
 ```
 
-This will:
-- Build whisper.cpp with Metal GPU acceleration
-- Download the `base.en` model (~150MB)
-- Create your config at `~/.voicetag/config.json`
-
 ### Step 3 — Build and launch
+
 ```bash
-swift build -c release
-
-mkdir -p VoiceTag.app/Contents/MacOS
-mkdir -p VoiceTag.app/Contents/Resources
-
-cp .build/release/VoiceTag VoiceTag.app/Contents/MacOS/
-
-cat > VoiceTag.app/Contents/Info.plist << 'PLIST'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleExecutable</key><string>VoiceTag</string>
-    <key>CFBundleIdentifier</key><string>com.voicetag.app</string>
-    <key>CFBundleName</key><string>VoiceTag</string>
-    <key>CFBundleVersion</key><string>1.0.0</string>
-    <key>CFBundleShortVersionString</key><string>1.0.0</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleIconFile</key><string>VoiceTag</string>
-    <key>LSMinimumSystemVersion</key><string>14.0</string>
-    <key>NSMicrophoneUsageDescription</key><string>VoiceTag uses the microphone to capture your spoken tags.</string>
-    <key>NSPrincipalClass</key><string>NSApplication</string>
-    <key>NSHighResolutionCapable</key><true/>
-</dict>
-</plist>
-PLIST
-
+chmod +x build.sh
+./build.sh
 open VoiceTag.app
 ```
 
 ### Step 4 — Grant permissions
+
 When the app opens, grant:
 - **Microphone** — System Settings → Privacy & Security → Microphone → VoiceTag ✓
-- **Accessibility** (optional, for global hotkeys) — System Settings → Privacy & Security → Accessibility → VoiceTag ✓
+- **Accessibility** (optional) — System Settings → Privacy & Security → Accessibility → VoiceTag ✓
+
+---
+
+## Voice Recognition Backends
+
+VoiceTag supports three backends. Set `whisperMode` in `~/.voicetag/config.json`.
+
+### 🇮🇳 Sarvam AI (Recommended for Indian users)
+
+[Sarvam AI](https://sarvam.ai) is an Indian AI company with state-of-the-art speech recognition for 22 Indian languages. It handles Indian accents, place names, and code-mixed speech far better than generic models.
+
+**Setup:**
+1. Get a free API key at [dashboard.sarvam.ai](https://dashboard.sarvam.ai) — starts free with ₹1,000 credits
+2. Add to your config:
+
+```json
+{
+  "whisperMode": "sarvam",
+  "sarvamAPIKey": "your-key-here",
+  "sarvamLanguage": "en-IN"
+}
+```
+
+**Supported languages:** `en-IN`, `hi-IN`, `kn-IN`, `ta-IN`, `te-IN`, `ml-IN`, `mr-IN`, `bn-IN`, `gu-IN`, `pa-IN` and more.
+
+**Pricing:** ₹30/hour of audio — sorting 500 photos uses roughly 10 minutes of audio = ~₹5.
+
+---
+
+### 🤖 OpenAI Whisper API
+
+```json
+{
+  "whisperMode": "api",
+  "whisperAPIKey": "sk-your-openai-key"
+}
+```
+
+---
+
+### 💻 Local whisper.cpp (Offline)
+
+No API key needed. Runs fully offline using Apple Silicon GPU.
+
+```json
+{
+  "whisperMode": "local",
+  "whisperModel": "base.en"
+}
+```
+
+Available models (run `setup.sh --model <name>` to download):
+
+| Model | Size | Speed | Accuracy |
+|---|---|---|---|
+| `tiny.en` | 75MB | Fastest | Basic |
+| `base.en` | 150MB | Fast | Good |
+| `small.en` | 500MB | Medium | Better |
+| `medium.en` | 1.5GB | Slower | Best offline |
 
 ---
 
@@ -119,10 +171,10 @@ When the app opens, grant:
 | Key | Action |
 |---|---|
 | `← →` | Navigate between images |
-| Hold `SPACE` | Start recording your tag |
+| Hold `SPACE` | Start recording voice tag |
 | Release `SPACE` | Stop recording and apply tag |
 | `Shift + SPACE` | Repeat last tag instantly |
-| `←` after tagging | Undo last tag, re-tag the image |
+| `←` right after tagging | Undo last tag, re-tag the image |
 | `⌘O` | Open a folder |
 | `⌘Z` | Undo last action |
 
@@ -130,11 +182,12 @@ When the app opens, grant:
 
 | Say | What happens |
 |---|---|
-| `"kuari pass day 2"` | Moves to `Kuari_Pass/Day_2/` |
+| `"Kuari Pass Day 2"` | Moves to `Kuari_Pass/Day_2/` |
+| `"Hampi"` | Moves to `Hampi/` |
 | `"family"` | Moves to `Family/` |
-| `"skip"` or `"next"` | Skips, no action |
-| `"delete"` or `"trash"` | Moves to `Trash_Sorted/` |
-| `"undo"` | Undoes last move |
+| `"skip"` / `"next"` | Skip, no action |
+| `"delete"` / `"trash"` | Move to `Trash_Sorted/` |
+| `"undo"` | Undo last move |
 
 ### Output Folder Structure
 
@@ -143,6 +196,7 @@ When the app opens, grant:
 ├── Kuari_Pass/
 │   ├── Day_1/
 │   └── Day_2/
+├── Hampi/
 ├── Family/
 ├── Landscapes/
 ├── Trash_Sorted/
@@ -153,69 +207,90 @@ When the app opens, grant:
 
 ## Configuration
 
-Edit `~/.voicetag/config.json` to customise:
+Edit `~/.voicetag/config.json`:
 
 ```json
 {
   "baseDirectory": "~/Pictures/VoiceTagged",
-  "whisperMode": "local",
+  "whisperMode": "sarvam",
+  "whisperAPIKey": null,
+  "sarvamAPIKey": "your-key-here",
   "whisperModel": "base.en",
+  "sarvamLanguage": "en-IN",
   "skipCommands": ["skip", "next", "pass"],
   "deleteCommands": ["delete", "trash", "remove"],
   "undoCommands": ["undo", "go back"],
   "trashFolderName": "Trash_Sorted",
   "tagMappings": {
-    "kuari pass": "Kuari_Pass",
-    "not kuari": "Not_Kuari",
+    "hampi": "Hampi",
+    "humpy": "Hampi",
+    "kuari": "Kuari_Pass",
+    "quari": "Kuari_Pass",
     "family": "Family"
-  }
+  },
+  "debugMode": false,
+  "logFile": "~/.voicetag/voicetag.log"
 }
 ```
 
-### Better Accuracy (Recommended)
-Switch to the `small.en` model for noticeably better transcription, especially with accents:
-```bash
-~/.voicetag/whisper.cpp/models/download-ggml-model.sh small.en ~/.voicetag/models
+### Tag Mappings
+
+Use `tagMappings` to handle common misrecognitions. The key is what whisper/Sarvam might hear, the value is the correct folder name:
+
+```json
+"tagMappings": {
+  "humpy": "Hampi",
+  "quari": "Kuari_Pass",
+  "goa": "Goa"
+}
 ```
-Then update `whisperModel` in your config to `"small.en"`.
 
 ---
 
 ## Troubleshooting
 
 **Space bar not working?**
-Click on the app window first to give it focus, then try holding SPACE.
+Click on the app window first to give it focus.
 
 **Always hears "You" or silence?**
-Your default audio input might be wrong. Check System Settings → Sound → Input and make sure your microphone is selected.
+Your mic input might be wrong. Check System Settings → Sound → Input. Also run:
+```bash
+/opt/homebrew/bin/ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | grep -i micro
+```
 
 **App won't open?**
 Right-click `VoiceTag.app` → Open → Open (bypasses Gatekeeper for unsigned apps).
 
+**Sarvam API error?**
+Check your key at [dashboard.sarvam.ai](https://dashboard.sarvam.ai) and make sure `whisperMode` is set to `"sarvam"` in config.
+
 **Whisper not found?**
-Re-run `./setup.sh` — it will detect what's missing and install it.
+Re-run `./setup.sh` — it detects and installs what's missing.
 
 ---
 
 ## Roadmap
 
 - [ ] First-launch setup wizard (no terminal needed)
-- [ ] Bundled ffmpeg (no Homebrew needed)
+- [ ] Bundled ffmpeg (no Homebrew required)
 - [ ] Multiple tags per image
 - [ ] Sound feedback on tag/undo
 - [ ] Session stats (photos sorted, time taken)
 - [ ] EXIF auto day-grouping
-- [ ] Batch tagging
+- [ ] Batch tagging mode
+- [ ] Auto-updater
 
 ---
 
 ## Credits
 
-**Idea & Product** — [Swaroop B Deshpande](https://github.com/YOUR_USERNAME)
+**Idea & Product** — [Swaroop B Deshpande](https://github.com/zenith0201)
 
 **Built with** — [Claude](https://claude.ai) by Anthropic
 
-**Powered by** — [whisper.cpp](https://github.com/ggerganov/whisper.cpp) by Georgi Gerganov · [ffmpeg](https://ffmpeg.org) · SwiftUI
+**Speech Recognition** — [Sarvam AI](https://sarvam.ai) · [whisper.cpp](https://github.com/ggerganov/whisper.cpp) by Georgi Gerganov · [OpenAI Whisper](https://openai.com/research/whisper)
+
+**Core Technologies** — [ffmpeg](https://ffmpeg.org) · SwiftUI · AVFoundation
 
 ---
 
@@ -226,5 +301,5 @@ MIT — see [LICENSE](LICENSE)
 ---
 
 <div align="center">
-  <sub>Made with ❤️ and a lot of voice commands</sub>
+  <sub>Made with ❤️ in India — Built for Indian photographers</sub>
 </div>
