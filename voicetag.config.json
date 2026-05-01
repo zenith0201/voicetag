@@ -1,0 +1,23 @@
+{
+  "baseDirectory": "~/Pictures/VoiceTagged",
+  "whisperMode": "local",
+  "whisperAPIKey": null,
+  "whisperModel": "base.en",
+  "skipCommands": ["skip", "next", "pass", "ignore"],
+  "deleteCommands": ["delete", "trash", "remove", "discard", "junk"],
+  "undoCommands": ["undo", "go back", "revert", "undo that"],
+  "trashFolderName": "Trash_Sorted",
+  "tagMappings": {
+    "kuari pass": "Kuari_Pass",
+    "not kuari": "Not_Kuari",
+    "random": "Random",
+    "family": "Family",
+    "landscape": "Landscapes",
+    "portrait": "Portraits",
+    "food": "Food",
+    "travel": "Travel",
+    "unsorted": "Unsorted"
+  },
+  "debugMode": false,
+  "logFile": "~/.voicetag/voicetag.log"
+}

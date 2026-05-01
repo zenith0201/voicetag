@@ -1,0 +1,31 @@
+# Swift / Xcode
+.build/
+.swiftpm/
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# App bundle (built locally)
+VoiceTag.app/
+
+# Whisper models (large binaries)
+*.bin
+*.gguf
+
+# User config & logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+*.tmp
+/tmp/
