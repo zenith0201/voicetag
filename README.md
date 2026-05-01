@@ -297,7 +297,9 @@ Re-run `./setup.sh` to reinstall.
 
 ## Credits
 
-**Idea & Product** — [Your Name](https://github.com/YOUR_USERNAME)
+**Idea & Product** — [Swaroop B Deshpande](https://github.com/zenith0201)
+**instagram** - (https://www.instagram.com/the_deshpande_?igsh=ajZlMWRicDJlOWV0&utm_source=qr)
+
 
 **Built with** — [Claude](https://claude.ai) by Anthropic
 
