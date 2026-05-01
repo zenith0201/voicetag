@@ -56,6 +56,7 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - Empty State
     private var emptyState: some View {
         VStack(spacing: 24) {
             Image(systemName: "photo.stack")
@@ -63,11 +64,9 @@ struct ContentView: View {
                 .foregroundStyle(.tertiary)
 
             VStack(spacing: 8) {
-                Text("VoiceTag")
-                    .font(.largeTitle.bold())
+                Text("VoiceTag").font(.largeTitle.bold())
                 Text("Voice-controlled photo sorting for macOS")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+                    .font(.title3).foregroundStyle(.secondary)
             }
 
             Button(action: { showingFolderPicker = true }) {
@@ -78,13 +77,11 @@ struct ContentView: View {
             .buttonStyle(.borderedProminent)
             .keyboardShortcut("o", modifiers: .command)
 
-            Text("Or drag a folder here")
-                .font(.caption).foregroundStyle(.tertiary)
+            Text("Or drag a folder here").font(.caption).foregroundStyle(.tertiary)
 
             quickHelpView
         }
-        .frame(maxWidth: 480)
-        .padding()
+        .frame(maxWidth: 480).padding()
     }
 
     private var quickHelpView: some View {
@@ -101,7 +98,7 @@ struct ContentView: View {
                     helpRow("\"skip\"", "Skip, no action")
                     helpRow("\"delete\"", "Move to trash")
                     helpRow("\"undo\"", "Undo via voice")
-                    helpRow("Tap tag", "Quick-apply tag")
+                    helpRow("Enter", "Apply edited tag")
                 }
             }
         }
@@ -120,16 +117,21 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - Keyboard setup
     private func setupKeyboardMonitor() {
         keyboardMonitor.onSpaceDown = {
+            // Block mic if tag editor is open — user is typing
+            guard !appState.showTagEditor else { return }
             guard !appState.isRecording, !appState.isProcessing else { return }
             appState.startRecording()
         }
         keyboardMonitor.onSpaceUp = {
+            guard !appState.showTagEditor else { return }
             guard appState.isRecording else { return }
             appState.stopRecordingAndProcess()
         }
         keyboardMonitor.onShiftSpaceDown = {
+            guard !appState.showTagEditor else { return }
             appState.repeatLastTag()
         }
         keyboardMonitor.start()

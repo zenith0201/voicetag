@@ -14,10 +14,11 @@ final class AppState: ObservableObject {
     @Published var isProcessing: Bool = false
     @Published var actionHistory: [HistoryEntry] = []
     @Published var recentTags: [String] = []
-
-    // Tracks whether the most recent navigation was a tag action
-    // so left arrow can undo it instead of just going back
     @Published var lastActionWasTag: Bool = false
+
+    // Editable tag — shown after transcription so user can fix before applying
+    @Published var pendingTagText: String = ""
+    @Published var showTagEditor: Bool = false
 
     var lastTagAction: TagAction?
     var lastTagLabel: String = ""
@@ -48,6 +49,7 @@ final class AppState: ObservableObject {
         if hasImages, currentIndex < imageFiles.count - 1 {
             currentIndex += 1
             lastActionWasTag = false
+            dismissTagEditor()
         }
     }
 
@@ -55,11 +57,10 @@ final class AppState: ObservableObject {
         if hasImages, currentIndex > 0 {
             currentIndex -= 1
             lastActionWasTag = false
+            dismissTagEditor()
         }
     }
 
-    /// Smart left arrow: if the last action was a tag, undo it and show that image.
-    /// Otherwise just go to previous image.
     func smartNavigateBack() {
         if lastActionWasTag && !actionHistory.isEmpty {
             lastActionWasTag = false
@@ -71,28 +72,38 @@ final class AppState: ObservableObject {
         }
     }
 
+    func dismissTagEditor() {
+        showTagEditor = false
+        pendingTagText = ""
+    }
+
     // MARK: - Folder Loading
     func loadFolder(_ url: URL) {
         currentFolderURL = url
-        let supported = ["jpg","jpeg","png","heic","heif","tiff","tif","gif","webp","bmp","raw","cr2","nef","arw"]
-        do {
-            let contents = try FileManager.default.contentsOfDirectory(
-                at: url, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles])
-            imageFiles = contents
-                .filter { supported.contains($0.pathExtension.lowercased()) }
-                .sorted { $0.lastPathComponent < $1.lastPathComponent }
-            currentIndex = 0
-            lastActionWasTag = false
-            statusMessage = "Loaded \(imageFiles.count) images"
-            Logger.shared.log("Loaded folder: \(url.path) — \(imageFiles.count) images")
-        } catch {
-            statusMessage = "Error: \(error.localizedDescription)"
+        let supported: Set<String> = ["jpg","jpeg","png","heic","heif","tiff","tif","gif","webp","bmp","raw","cr2","nef","arw"]
+        var found: [URL] = []
+        let enumerator = FileManager.default.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles, .skipsPackageDescendants]
+        )
+        while let fileURL = enumerator?.nextObject() as? URL {
+            if supported.contains(fileURL.pathExtension.lowercased()) {
+                found.append(fileURL)
+            }
         }
+        imageFiles = found.sorted { $0.path < $1.path }
+        currentIndex = 0
+        lastActionWasTag = false
+        dismissTagEditor()
+        statusMessage = "Loaded \(imageFiles.count) images"
+        Logger.shared.log("Loaded folder: \(url.path) — \(imageFiles.count) images (recursive)")
     }
 
     // MARK: - Voice Recording
     func startRecording() {
         guard currentImageURL != nil else { statusMessage = "No image selected"; return }
+        dismissTagEditor()
         isRecording = true
         statusMessage = "🎙 Recording..."
         whisperService.startRecording()
@@ -133,22 +144,45 @@ final class AppState: ObservableObject {
     func applyTag(_ tag: String) {
         guard currentImageURL != nil, !isProcessing, !isRecording else { return }
         isProcessing = true
+        dismissTagEditor()
         let action = tagParser.parse(text: tag, currentFolder: currentFolderURL, config: config)
         Task { await executeAction(action, transcription: tag) }
+    }
+
+    // MARK: - Apply pending tag from editor (user pressed Enter)
+    func applyPendingTag() {
+        let tag = pendingTagText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !tag.isEmpty else { dismissTagEditor(); return }
+        // Add to recent tags immediately so it shows even if manually typed
+        addRecentTag(tag)
+        applyTag(tag)
     }
 
     // MARK: - Handle transcription
     func handleTranscription(_ text: String) async {
         let cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
         lastTranscription = cleaned
-        guard !cleaned.isEmpty, let imageURL = currentImageURL else {
-            await MainActor.run { statusMessage = "Nothing detected"; isProcessing = false }
+        isProcessing = false
+
+        guard !cleaned.isEmpty, currentImageURL != nil else {
+            statusMessage = "Nothing detected — press ✏️ to type a tag"
             return
         }
+
+        // Auto-apply the tag directly — user can tap pencil to edit if wrong
+        pendingTagText = cleaned
         let action = tagParser.parse(text: cleaned, currentFolder: currentFolderURL, config: config)
         lastAction = action
-        Logger.shared.log("Image: \(imageURL.lastPathComponent) | Said: \"\(cleaned)\" | Action: \(action.description)")
+        Logger.shared.log("Image: \(currentImageURL!.lastPathComponent) | Said: \"\(cleaned)\" | Action: \(action.description)")
+        isProcessing = true
         await executeAction(action, transcription: cleaned)
+    }
+
+    // MARK: - Open tag editor manually (pencil button)
+    func openTagEditor() {
+        pendingTagText = lastTranscription
+        showTagEditor = true
+        statusMessage = "✏️ Edit tag and press Enter"
     }
 
     // MARK: - Execute action
@@ -157,6 +191,9 @@ final class AppState: ObservableObject {
             await MainActor.run { isProcessing = false }
             return
         }
+
+        dismissTagEditor()
+
         switch action {
         case .skip:
             await MainActor.run {
@@ -171,7 +208,7 @@ final class AppState: ObservableObject {
                 let entry = try await fileService.move(imageURL, toFolder: folder, createIfNeeded: true)
                 await MainActor.run {
                     actionHistory.append(entry)
-                    lastActionWasTag = true  // deletions are also undoable with left arrow
+                    lastActionWasTag = true
                     removeCurrentFromList()
                     statusMessage = "🗑 Trashed — press ← to undo"
                     isProcessing = false
@@ -187,7 +224,7 @@ final class AppState: ObservableObject {
                     actionHistory.append(entry)
                     lastTagAction = action
                     lastTagLabel = transcription
-                    lastActionWasTag = true  // ← will undo this
+                    lastActionWasTag = true
                     addRecentTag(transcription)
                     removeCurrentFromList()
                     statusMessage = "✅ → \(folderPath.lastPathComponent)  (← to undo)"
@@ -216,6 +253,50 @@ final class AppState: ObservableObject {
         if currentIndex >= imageFiles.count, currentIndex > 0 { currentIndex = imageFiles.count - 1 }
     }
 
+    // MARK: - Output directory
+    func setOutputDirectory(_ url: URL) {
+        config.baseDirectory = url.path
+        whisperService.config = config
+        // Persist to config file
+        let configPath = ("~/.voicetag/config.json" as NSString).expandingTildeInPath
+        if let data = try? Data(contentsOf: URL(fileURLWithPath: configPath)),
+           var dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            dict["baseDirectory"] = url.path
+            if let newData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]) {
+                try? newData.write(to: URL(fileURLWithPath: configPath))
+            }
+        }
+        statusMessage = "Output: \(url.lastPathComponent)"
+        Logger.shared.log("Output directory changed to: \(url.path)")
+    }
+
+    var outputDirectoryURL: URL {
+        config.baseDirectoryURL
+    }
+
+    // MARK: - Model switching
+    func setWhisperMode(_ mode: AppConfig.WhisperMode) {
+        config.whisperMode = mode
+        whisperService.config = config
+        // Persist to config file
+        let configPath = ("~/.voicetag/config.json" as NSString).expandingTildeInPath
+        if var data = try? Data(contentsOf: URL(fileURLWithPath: configPath)),
+           var dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            dict["whisperMode"] = mode.rawValue
+            if let newData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]) {
+                try? newData.write(to: URL(fileURLWithPath: configPath))
+            }
+        }
+        let modeName: String
+        switch mode {
+        case .local:  modeName = "Local (whisper.cpp)"
+        case .api:    modeName = "OpenAI Whisper"
+        case .sarvam: modeName = "Sarvam AI"
+        }
+        statusMessage = "Model: \(modeName)"
+        Logger.shared.log("Switched to model: \(mode.rawValue)")
+    }
+
     // MARK: - Undo
     func performUndo() async {
         guard let last = actionHistory.last else {
@@ -227,9 +308,8 @@ final class AppState: ObservableObject {
             await MainActor.run {
                 actionHistory.removeLast()
                 lastActionWasTag = false
-                // Restore image into current list
                 imageFiles.append(last.originalURL)
-                imageFiles.sort { $0.lastPathComponent < $1.lastPathComponent }
+                imageFiles.sort { $0.path < $1.path }
                 if let idx = imageFiles.firstIndex(of: last.originalURL) { currentIndex = idx }
                 statusMessage = "↩️ \(last.originalURL.lastPathComponent) — re-tag it!"
                 isProcessing = false
