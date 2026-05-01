@@ -15,7 +15,7 @@ final class WhisperService: NSObject, ObservableObject {
         currentTempURL = tempURL
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/opt/homebrew/bin/ffmpeg")
-        process.arguments = ["-f", "avfoundation", "-i", ":1", "-ar", "16000", "-ac", "1", "-y", tempURL.path]
+        process.arguments = ["-f", "avfoundation", "-i", ":2", "-ar", "16000", "-ac", "1", "-y", tempURL.path]
         process.standardOutput = Pipe()
         process.standardError = Pipe()
         ffmpegProcess = process
