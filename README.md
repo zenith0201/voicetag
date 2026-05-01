@@ -23,9 +23,9 @@ Ever come back from a trip with 500 photos and dreaded sorting them? VoiceTag le
 📂 Open folder with 500 photos from your trek
 
 → Browse with arrow keys
-→ Hold SPACE → say "Himalayan Trek Day 2"
+→ Hold SPACE → say "Kuari Pass Day 2"
 → Release SPACE
-→ Photo instantly moves to ~/Pictures/VoiceTagged/Himalayan_Trek/day_2/
+→ Photo instantly moves to ~/Pictures/VoiceTagged/kuari_pass/day_2/
 → Next photo loads automatically
 
 Repeat at full speed. Sort 200 photos in 15 minutes.
@@ -40,7 +40,7 @@ Repeat at full speed. Sort 200 photos in 15 minutes.
 - 🔁 **Shift+Space** — repeat last tag without speaking again
 - ↩️ **Smart undo** — press ← right after a tag to undo it and re-tag
 - 🏷 **Recent tags** — one-click sidebar buttons for your most-used tags
-- 📂 **Auto folders** — "Himalayan_Trek" creates nested `Himalayan_Trek/Day_2/` automatically
+- 📂 **Auto folders** — "kuari pass day 2" creates nested `Kuari_Pass/Day_2/` automatically
 - 📴 **Offline** — works completely without internet after setup
 - 🗂 **EXIF aware** — shows date taken, camera model, GPS in sidebar
 - 📝 **Full log** — every action logged to `~/.voicetag/voicetag.log`
@@ -130,7 +130,7 @@ When the app opens, grant:
 
 | Say | What happens |
 |---|---|
-| `"Himalayan_Trek"` | Moves to `Himalayan_Trek/Day_2/` |
+| `"kuari pass day 2"` | Moves to `Kuari_Pass/Day_2/` |
 | `"family"` | Moves to `Family/` |
 | `"skip"` or `"next"` | Skips, no action |
 | `"delete"` or `"trash"` | Moves to `Trash_Sorted/` |
@@ -140,7 +140,7 @@ When the app opens, grant:
 
 ```
 ~/Pictures/VoiceTagged/
-├── Himalayan_Trek/
+├── Kuari_Pass/
 │   ├── Day_1/
 │   └── Day_2/
 ├── Family/
@@ -165,8 +165,8 @@ Edit `~/.voicetag/config.json` to customise:
   "undoCommands": ["undo", "go back"],
   "trashFolderName": "Trash_Sorted",
   "tagMappings": {
-    "Himalayan Trek ": "Himalayan_Trek",
-    "not Himalayan": "Not_Himalayan",
+    "kuari pass": "Kuari_Pass",
+    "not kuari": "Not_Kuari",
     "family": "Family"
   }
 }
@@ -211,7 +211,7 @@ Re-run `./setup.sh` — it will detect what's missing and install it.
 
 ## Credits
 
-**Idea & Product** — [Swaroop B Deshpande](https://github.com/zenith0201)
+**Idea & Product** — [Swaroop B Deshpande](https://github.com/YOUR_USERNAME)
 
 **Built with** — [Claude](https://claude.ai) by Anthropic
 
